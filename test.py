@@ -46,7 +46,7 @@ if __name__ == "__main__":
     for thread in threads:
         thread.join()
 
-# To do: quick scan, is malicious, quaranteen file, może jakieś wyeliminowanie plików ukrytych ..?
+# To do: quaranteen file, reboot auto-start, creating a window with allert if infected, sending mail if infected
 
 
 
