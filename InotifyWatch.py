@@ -20,7 +20,7 @@ class InotifyWatch:
         event_path = event.pathname
 
         # File deleted
-        if not self._cron and not os.path.exists(event_path):
+        if not self._cron and event_path != cron_path and not os.path.exists(event_path):
             try:
                 self._index[0].remove_file(event_path)
             except FileNotFoundError:
@@ -39,14 +39,15 @@ class InotifyWatch:
             elif file.path != cron_path and self._cron:
                 return
             # Files
-            try:
-                if not (file.is_binary() and file.is_executable()) or file.is_hidden():
-                    return
-                if not self._cron:
-                    self._index[0].update_hash(file)
-                    print(event_path)
-            except FileNotFoundError:
-                pass
+            else:
+                try:
+                    if not (file.is_binary() and file.is_executable()) or file.is_hidden():
+                        return
+                    if not self._cron:
+                        self._index[0].update_hash(file)
+                        print(event_path)
+                except FileNotFoundError:
+                    pass
 
     def watch_file(self):
         watch_manager = pyinotify.WatchManager()
