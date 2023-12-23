@@ -27,13 +27,16 @@ class File:
         with open(self.path, 'rb') as file:
             if b'\x00' in file.read(1024):
                 return False
+            if b'#!' in file.read(1024):
+                return True
             detector = chardet.UniversalDetector()
             for line in file.readlines():
                 detector.feed(line)
                 if detector.done:
                     break
             detector.close()
-            return detector.result["confidence"] < 0.9
+            result = detector.result
+            return result["confidence"] < 0.9
     
     def is_executable(self):
         return os.access(self.path, os.X_OK)
