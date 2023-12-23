@@ -1,28 +1,11 @@
 import csv
 import hashlib
 import os
+import chardet
+
+from File import File
 
 main_folder = "/home/gosia/Antivirus"
-
-
-class File:
-    def __init__(self, path: str) -> None:
-        self._path = path
-    
-    @property
-    def path(self):
-        return self._path
-
-    @property
-    def hash(self):
-        hashMD5 = hashlib.md5()
-        try:
-            with open(self.path, 'rb') as file:
-                file_content = file.read()
-                hashMD5.update(file_content)
-            return hashMD5.hexdigest()
-        except FileNotFoundError:
-            pass
 
 
 class FilesIndex:
@@ -35,6 +18,21 @@ class FilesIndex:
             writer = csv.DictWriter(index_file, fieldnames=fieldnames)
             writer.writeheader()
 
+    def remove_file(self, file_path):
+        with open(self._path, 'r+') as index_file:
+            reader = csv.DictReader(index_file)
+            fieldnames = ["path", "hash"]
+            writer = csv.DictWriter(index_file, fieldnames=fieldnames)
+
+            rows = list(reader)
+            for row in rows:
+                if row["path"] == file_path:
+                    rows.remove(row)
+                    break
+            
+            index_file.seek(0)
+            writer.writeheader()
+            writer.writerows(rows)
 
     def update_hash(self, file: File):
         with open(self._path, 'r+') as index_file:
@@ -45,7 +43,9 @@ class FilesIndex:
             updated = False
             rows = list(reader)
             for row in rows:
-                if row["path"] == file.path:
+                if row["path"] == file.path and row["hash"] == file.hash:
+                    return
+                elif row["path"] == file.path and row["hash"] != file.hash:
                     row["hash"] = file.hash
                     updated = True
                     break
@@ -60,19 +60,6 @@ class FilesIndex:
                 except FileNotFoundError:
                     pass
     
-    def exclude_hidden(self, file_path, elements):
-        path, element = os.path.split(file_path)
-        if path and element:
-            elements.append(element)
-            self.exclude_hidden(path, elements)
-        else:
-            elements.append(element)
-
-        for element in elements:
-            if element.startswith('.'):
-                elements = None
-        return elements
-
     def scan(self, folder):
         try:
             if os.path.isdir(folder):
@@ -82,12 +69,23 @@ class FilesIndex:
 
             for element in elements:
                 full_path = os.path.join(folder, element)
-                if not self.exclude_hidden(full_path, []):
-                    continue
                 if os.path.isfile(full_path):
                     file = File(full_path)
-                    self.update_hash(file)
+                    if not (file.is_binary() and file.is_executable()) or file.is_hidden():
+                        continue
+                    if file.is_malicious():
+                        file.quaranteen_file()
+                    else:
+                        self.update_hash(file)
                 else:
                     self.scan(full_path)
         except PermissionError:
             pass
+    
+    def quickscan(self):
+        with open(self._path, 'r') as index_file:
+            reader = csv.DictReader(index_file)
+            for line in reader:
+                file = File(line["path"])
+                if file.is_malicious():
+                    file.quaranteen_file()
