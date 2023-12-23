@@ -40,14 +40,14 @@ class InotifyWatch:
                 return
             # Files
             try:
-                if not (file.is_binary() and file.is_executable()):
+                if not (file.is_binary() and file.is_executable()) or file.is_hidden():
                     return
-                elif not self._cron:
+                if not self._cron:
                     self._index[0].update_hash(file)
                     print(event_path)
             except FileNotFoundError:
                 pass
-                    
+
     def watch_file(self):
         watch_manager = pyinotify.WatchManager()
         if self._cron:
