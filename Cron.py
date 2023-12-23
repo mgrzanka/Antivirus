@@ -1,7 +1,7 @@
-from JsonFile import JsonFile
 from crontab import CronTab
 import os
 
+from JsonFile import JsonFile
 
 main_folder = "/home/gosia/Antivirus"
 
