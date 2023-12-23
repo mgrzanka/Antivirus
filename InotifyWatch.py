@@ -1,15 +1,15 @@
 import pyinotify
 import os
-import csv
 from threading import Thread
 
-from FilesIndex import File, FilesIndex
+from FilesIndex import FilesIndex
+from File import File
 
 main_folder = "/home/gosia/Antivirus"
 
 
 class InotifyWatch:
-    def __init__(self, folder_path: str, cron: bool, index: FilesIndex) -> None:
+    def __init__(self, folder_path: str, cron: bool, index: list[FilesIndex]) -> None:
         self._folder_path = folder_path
         self._cron = cron
         self._index = index
@@ -19,30 +19,42 @@ class InotifyWatch:
         cron_path = os.path.join(main_folder, "ScanMessage.txt")
         event_path = event.pathname
 
-        if not self._index.exclude_hidden(event_path, []):
-            return
-        
-        if not os.path.isdir(event_path) and event_path != os.path.join(main_folder, "index.csv"):
+        # File deleted
+        if not self._cron and not os.path.exists(event_path):
+            try:
+                self._index[0].remove_file(event_path)
+            except FileNotFoundError:
+                pass
+
+        #File created or modified
+        if not os.path.isdir(event_path):
             file = File(event_path)
-            # Cron
+            # Crone
             if file.path == cron_path and self._cron:
                 print(f"{file.path} was created")
-                self._index.scan(self._folder_path)
                 os.remove(file.path)
+                for index in self._index:
+                    index.quickscan()                   
+                return
             elif file.path != cron_path and self._cron:
                 return
-            # Pliki
-            else:
-                self._index.update_hash(file)
-                print(event_path)
-
+            # Files
+            try:
+                if not (file.is_binary() and file.is_executable()):
+                    return
+                elif not self._cron:
+                    self._index[0].update_hash(file)
+                    print(event_path)
+            except FileNotFoundError:
+                pass
+                    
     def watch_file(self):
         watch_manager = pyinotify.WatchManager()
         if self._cron:
             mask = pyinotify.IN_CREATE
             watch_manager.add_watch(self._folder_path, mask=mask)
         else:
-            mask = pyinotify.IN_CREATE | pyinotify.IN_MODIFY
+            mask = pyinotify.IN_CREATE | pyinotify.IN_MODIFY | pyinotify.IN_DELETE
             watch_manager.add_watch(self._folder_path, mask=mask, rec=True)
 
         event_handler = pyinotify.ProcessEvent()
@@ -50,7 +62,7 @@ class InotifyWatch:
 
         notifier = pyinotify.Notifier(watch_manager, event_handler)
         notifier.loop()
-    
+
     def watch_thread(self):
         thread = Thread(target=self.watch_file)
         thread.start()
