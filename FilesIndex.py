@@ -1,7 +1,5 @@
 import csv
-import hashlib
 import os
-import chardet
 
 from File import File
 
@@ -19,12 +17,13 @@ class FilesIndex:
             writer.writeheader()
 
     def remove_file(self, file_path):
-        with open(self._path, 'r+') as index_file:
+        with open(self._path, 'r') as index_file:
             reader = csv.DictReader(index_file)
             fieldnames = ["path", "hash"]
-            writer = csv.DictWriter(index_file, fieldnames=fieldnames)
-
             rows = list(reader)
+        with open(self._path, 'w') as index_file: 
+            writer = csv.DictWriter(index_file, fieldnames=fieldnames)
+            
             for row in rows:
                 if row["path"] == file_path:
                     rows.remove(row)
@@ -81,11 +80,12 @@ class FilesIndex:
                     self.scan(full_path)
         except PermissionError:
             pass
-    
+
     def quickscan(self):
         with open(self._path, 'r') as index_file:
             reader = csv.DictReader(index_file)
             for line in reader:
                 file = File(line["path"])
+                print("Quick scan completed")
                 if file.is_malicious():
                     file.quaranteen_file()
