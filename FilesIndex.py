@@ -86,6 +86,9 @@ class FilesIndex:
             reader = csv.DictReader(index_file)
             for line in reader:
                 file = File(line["path"])
-                print("Quick scan completed")
                 if file.is_malicious():
                     file.quaranteen_file()
+                    self.remove_file(file.path)
+                else:
+                    self.update_hash(file)
+            print("Quick scan completed")
