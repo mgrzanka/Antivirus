@@ -13,7 +13,7 @@ class InotifyWatch:
         self._folder_path = folder_path
         self._cron = cron
         self._index = index
-    
+
     def on_file_change(self, event: pyinotify.Event):
         
         cron_path = os.path.join(main_folder, "ScanMessage.txt")
@@ -44,7 +44,11 @@ class InotifyWatch:
                     if not (file.is_binary() and file.is_executable()) or file.is_hidden():
                         return
                     if not self._cron:
-                        self._index[0].update_hash(file)
+                        if file.is_malicious():
+                            file.quaranteen_file()
+                            self._index[0].remove_file(file.path)
+                        else:
+                            self._index[0].update_hash(file)
                         print(event_path)
                 except FileNotFoundError:
                     pass
