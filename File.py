@@ -4,7 +4,7 @@ import hashlib
 import chardet
 import sqlite3
 
-from Messages import Message
+from Messages import SuccessMessage, PermissionErrorMessage, FailureMessage
 
 class File:
     def __init__(self, path: str) -> None:
@@ -71,20 +71,17 @@ class File:
             return False
 
     def quaranteen_file(self):
-        # Informacja o zamknieciu pliku w kwarantannie przesyłana na maila
         try:
             destination_path = "/home/gosia/Antivirus/.quaranteen"
             file_path = self.path
             shutil.move(file_path, destination_path)
             new_file_path = os.path.join(destination_path, os.path.split(file_path)[1])
             os.chmod(new_file_path, 0o000)
-            success_message = Message()
+            success_message = SuccessMessage(file_path, new_file_path)
             success_message.display_message()
         except PermissionError:
-            # Wyślij wiadomość że znalazł i nie dał rady zabrać uprawnien, bo potrzebuje pozwoleń
-            permission_error_message = Message()
+            permission_error_message = PermissionErrorMessage(file_path, new_file_path)
             permission_error_message.display_message()
         except Exception:
-            # Wyślij wiadomość że znalazł, ale nastąpił błąd przy likwidowaniu
-            failure_message = Message()
+            failure_message = FailureMessage(file_path, new_file_path)
             failure_message.display_message()
