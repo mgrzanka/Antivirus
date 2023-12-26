@@ -1,5 +1,6 @@
 import csv
 import os
+from multiprocessing import Process
 
 from File import File
 
@@ -80,6 +81,11 @@ class FilesIndex:
                     self.scan(full_path)
         except PermissionError:
             pass
+    
+    def scan_process(self, folder):
+        proces = Process(target=self.scan, args=(folder,))
+        proces.start()
+        return proces
 
     def quickscan(self):
         with open(self._path, 'r') as index_file:

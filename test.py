@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import multiprocessing
 
 from JsonFile import JsonFile
 from Cron import Cron
@@ -22,18 +23,22 @@ if __name__ == "__main__":
     watches_list = []
     indexes_list = []
     threads = []
+    processes = []
 
     for folder in folders_to_watch:
         # Index for each folder
         files_index = FilesIndex(os.path.join(folder, ".index.csv"))
-        indexes_list.append(files_index)
+        indexes_list.append(files_index) # for crone tak, so it can scan all of the file indexes
         if not os.path.exists(files_index._path):
             files_index.create()
-        files_index.scan(folder)
+        processes.append(files_index.scan_process(folder))
         # Inotify watch for each folder
         folder_watch = InotifyWatch(folder, cron=False, index=[files_index])
         watches_list.append(folder_watch)
     
+    for process in processes:
+        process.join()
+
     cron_watch = InotifyWatch(main_folder, cron=True, index=indexes_list)
     watches_list.append(cron_watch)
 
@@ -46,7 +51,7 @@ if __name__ == "__main__":
     for thread in threads:
         thread.join()
 
-# To do: quaranteen file, reboot auto-start, creating a window with allert if infected, sending mail if infected
+# To do: messages class, reboot auto-start, sending mail if infected
 
 
 
