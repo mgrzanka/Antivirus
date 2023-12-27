@@ -3,6 +3,7 @@ import os
 from multiprocessing import Process
 
 from File import File
+from Messages import PermissionErrorMessage
 
 main_folder = "/home/gosia/Antivirus"
 
@@ -12,10 +13,14 @@ class FilesIndex:
         self._path = path
 
     def create(self):
-        fieldnames = ["path", "hash"]
-        with open(self._path, 'w', newline='') as index_file:
-            writer = csv.DictWriter(index_file, fieldnames=fieldnames)
-            writer.writeheader()
+        try:
+            fieldnames = ["path", "hash"]
+            with open(self._path, 'w', newline='') as index_file:
+                writer = csv.DictWriter(index_file, fieldnames=fieldnames)
+                writer.writeheader()
+        except PermissionError:
+            message = PermissionErrorMessage()
+            message.display_message()
 
     def remove_file(self, file_path):
         with open(self._path, 'r') as index_file:
