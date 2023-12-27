@@ -1,9 +1,11 @@
 import pyinotify
 import os
+import time
 from threading import Thread
 
 from FilesIndex import FilesIndex
 from File import File
+
 
 main_folder = "/home/gosia/Antivirus"
 
@@ -31,13 +33,15 @@ class InotifyWatch:
             file = File(event_path)
             # Crone
             if file.path == cron_path and self._cron:
-                print(f"{file.path} was created")
-                os.remove(file.path)
-                for index in self._index:
-                    index.quickscan()                   
-                return
-            elif file.path != cron_path and self._cron:
-                return
+                if os.path.exists(cron_path):
+                    print(f"{file.path} was created")
+                    os.remove(file.path)
+                    time.sleep(1)
+                    for index in self._index:
+                        index.quickscan()                   
+                    return
+                elif file.path != cron_path and self._cron:
+                    return
             # Files
             else:
                 try:
@@ -49,7 +53,7 @@ class InotifyWatch:
                             self._index[0].remove_file(file.path)
                         else:
                             self._index[0].update_hash(file)
-                        print(event_path)
+                            print(event_path)
                 except FileNotFoundError:
                     pass
 
