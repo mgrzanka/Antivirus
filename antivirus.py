@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 import os
-import multiprocessing
 
 from JsonFile import JsonFile
 from Cron import Cron
 from InotifyWatch import InotifyWatch
 from FilesIndex import FilesIndex
+
+from Startup import Startup
 
 
 main_folder = "/home/gosia/Antivirus"
@@ -16,9 +17,11 @@ if __name__ == "__main__":
     json_file = JsonFile(os.path.join(main_folder, "settings.json"))
 
     Cron.scan_cron_configuration(json_file)
-    if json_file.reboot:
-        Cron.reboot_cron_configuration()
     
+    if json_file.reboot:
+        startup = Startup()
+        startup.add_to_startup()
+
     folders_to_watch = json_file.folders_to_watch
     watches_list = []
     indexes_list = []
@@ -28,7 +31,7 @@ if __name__ == "__main__":
     for folder in folders_to_watch:
         # Index for each folder
         files_index = FilesIndex(os.path.join(folder, ".index.csv"))
-        indexes_list.append(files_index) # for crone tak, so it can scan all of the file indexes
+        indexes_list.append(files_index) # for crone, so it can scan all of the file indexes
         if not os.path.exists(files_index._path):
             files_index.create()
         processes.append(files_index.scan_process(folder))
@@ -51,7 +54,6 @@ if __name__ == "__main__":
     for thread in threads:
         thread.join()
 
-# To do: messages class, reboot auto-start, sending mail if infected
 
 
 
