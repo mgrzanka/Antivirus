@@ -74,7 +74,7 @@ class File:
 
     def quarantine_file(self):
         try:
-            destination_path = os.path.join(self._main_folder, ".quaranteen")
+            destination_path = os.path.join(self._main_folder, ".quarantine")
             file_path = self.path
             shutil.move(file_path, destination_path)
             new_file_path = os.path.join(destination_path, os.path.split(file_path)[1])
