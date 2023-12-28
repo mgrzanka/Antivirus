@@ -33,10 +33,10 @@ class InotifyWatch:
             if file.path == cron_path and self._cron:
                 if os.path.exists(cron_path):
                     print(f"{file.path} was created")
-                    os.remove(file.path)
                     time.sleep(1)
                     for index in self._index:
                         index.quickscan()                   
+                    os.remove(file.path)
                     return
                 elif file.path != cron_path and self._cron:
                     return
