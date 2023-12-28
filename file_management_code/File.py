@@ -23,25 +23,28 @@ class File:
                 file_content = file.read()
                 hashMD5.update(file_content)
             return hashMD5.hexdigest()
-        except FileNotFoundError:
+        except Exception:
             pass
        
     def is_binary(self):
         real_path = os.path.realpath(self.path)
-        with open(real_path, 'rb') as file:
-            if b'\x00' in file.read(1024):
-                return False
-            if b'#!' in file.read(1024):
-                return True
-            detector = chardet.UniversalDetector()
-            for line in file.readlines():
-                detector.feed(line)
-                if detector.done:
-                    break
-            detector.close()
-            result = detector.result
-            return result["confidence"] < 0.9
-    
+        try:
+            with open(real_path, 'rb') as file:
+                if b'\x00' in file.read(1024):
+                    return False
+                if b'#!' in file.read(1024):
+                    return True
+                detector = chardet.UniversalDetector()
+                for line in file.readlines():
+                    detector.feed(line)
+                    if detector.done:
+                        break
+                detector.close()
+                result = detector.result
+                return result["confidence"] < 0.8
+        except PermissionError:
+            pass
+
     def is_executable(self):
         return os.access(self.path, os.X_OK)
     

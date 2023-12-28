@@ -3,6 +3,7 @@ import os
 import subprocess
 from abc import abstractmethod, ABC
 
+from configuration_code.JsonFile import JsonFile
 
 class Message(ABC):
     def __init__(self) -> None:
@@ -29,9 +30,10 @@ class Message(ABC):
         num_buttons = 0
         for label in labels:
             label.pack(pady=10)
-        for indx, button in enumerate(buttons):
-            button.grid(row=0, column=indx, sticky=tkinter.W+tkinter.E)
-            num_buttons += 1
+        if buttons:
+            for indx, button in enumerate(buttons):
+                button.grid(row=0, column=indx, sticky=tkinter.W+tkinter.E)
+                num_buttons += 1
         
         self._cancel_button.grid(row=0, column=num_buttons, sticky=tkinter.W+tkinter.E)
         self._frame.pack(pady=10, fill='x')
@@ -42,7 +44,10 @@ class PermissionErrorMessage(Message):
     def __init__(self) -> None:
         super().__init__()
         self._window.geometry("400x100")
-    
+        font = ("Arial", 14)
+        command = lambda: self._window.destroy()
+        self._cancel_button = tkinter.Button(self._frame, text="Cancel", font=font, command=command)
+
     def create_labels(self):
         font = ("Arial", 14)
         text = "You have to run the program with sudo :c"
@@ -51,22 +56,20 @@ class PermissionErrorMessage(Message):
 
     def create_buttons(self):
         self._frame.columnconfigure([0], weight=1)
-        self._frame.columnconfigure([1], weight=1)
-        font = ("Arial", 14)
-        dir = '/home/gosia'
-        command = lambda: subprocess.Popen(["gnome-terminal", "--", "bash", "-c", f"cd {dir}; exec bash"])
-        OK_button = tkinter.Button(self._frame, text="OK", font=font, command=command)
-        return [OK_button]
+        return None
 
 
 class RebootMessage(Message):
-    def __init__(self) -> None:
+    def __init__(self, user_path, json_file: JsonFile) -> None:
         super().__init__()
+        self._json_file = json_file
+        self._user_path = user_path
         self._window.geometry("600x200")
     
     def launch_antivirus(self, window):
-        program_path = "/home/gosia/Antivirus/antivirus.py"
-        interpreter_path = "/home/gosia/venv/bin/python"
+        main_folder = os.path.join(self._user_path, "Antivirus")
+        program_path = os.path.join(main_folder, "antivirus.py")
+        interpreter_path = self._json_file.interpreter_path
         window.destroy()
         subprocess.run(["pkexec", interpreter_path, program_path])
 

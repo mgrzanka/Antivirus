@@ -1,6 +1,5 @@
-#!/home/gosia/venv/bin/python
-
 import os
+import sys
 
 from configuration_code.JsonFile import JsonFile
 from configuration_code.Cron import Cron
@@ -34,16 +33,21 @@ if __name__ == "__main__":
     processes = []
 
     for folder in folders_to_watch:
-        # Index for each folder
         files_index = FilesIndex(os.path.join(folder, ".index.csv"), main_folder)
-        indexes_list.append(files_index) # for crone, so it can scan all of the file indexes
+        indexes_list.append(files_index)
         if not os.path.exists(files_index._path):
             files_index.create()
+        if files_index.should_exit():
+            if processes:
+                for process in processes:
+                    process.terminate()
+                    sys.exit()
+            else:
+                sys.exit()
         processes.append(files_index.scan_process(folder))
-        # Inotify watch for each folder
         folder_watch = InotifyWatch(folder, main_folder, cron=False, index=[files_index])
         watches_list.append(folder_watch)
-    
+
     for process in processes:
         process.join()
 
