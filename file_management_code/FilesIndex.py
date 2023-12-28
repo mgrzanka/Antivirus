@@ -2,15 +2,14 @@ import csv
 import os
 from multiprocessing import Process
 
-from File import File
-from Messages import PermissionErrorMessage
-
-main_folder = "/home/gosia/Antivirus"
+from .File import File
+from messages_code.Messages import PermissionErrorMessage
 
 
 class FilesIndex:
-    def __init__(self, path) -> None:
+    def __init__(self, path, main_folder) -> None:
         self._path = path
+        self._main_folder = main_folder
 
     def create(self):
         try:
@@ -75,11 +74,11 @@ class FilesIndex:
             for element in elements:
                 full_path = os.path.join(folder, element)
                 if os.path.isfile(full_path):
-                    file = File(full_path)
+                    file = File(full_path, self._main_folder)
                     if not (file.is_binary() and file.is_executable()) or file.is_hidden():
                         continue
                     if file.is_malicious():
-                        file.quaranteen_file()
+                        file.quarantine_file()
                     else:
                         self.update_hash(file)
                 else:
@@ -96,7 +95,7 @@ class FilesIndex:
         with open(self._path, 'r') as index_file:
             reader = csv.DictReader(index_file)
             for line in reader:
-                file = File(line["path"])
+                file = File(line["path"], self._main_folder)
                 if file.is_malicious():
                     file.quaranteen_file()
                     self.remove_file(file.path)

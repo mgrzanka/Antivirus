@@ -3,22 +3,20 @@ import os
 import time
 from threading import Thread
 
-from FilesIndex import FilesIndex
-from File import File
-
-
-main_folder = "/home/gosia/Antivirus"
+from file_management_code.FilesIndex import FilesIndex
+from file_management_code.File import File
 
 
 class InotifyWatch:
-    def __init__(self, folder_path: str, cron: bool, index: list[FilesIndex]) -> None:
+    def __init__(self, folder_path: str, main_folder, cron: bool, index: list[FilesIndex]) -> None:
         self._folder_path = folder_path
         self._cron = cron
         self._index = index
+        self._main_folder = main_folder
 
     def on_file_change(self, event: pyinotify.Event):
         
-        cron_path = os.path.join(main_folder, "ScanMessage.txt")
+        cron_path = os.path.join(self._main_folder, "ScanMessage.txt")
         event_path = event.pathname
 
         # File deleted
@@ -30,7 +28,7 @@ class InotifyWatch:
 
         #File created or modified
         if not os.path.isdir(event_path):
-            file = File(event_path)
+            file = File(event_path, self._main_folder)
             # Crone
             if file.path == cron_path and self._cron:
                 if os.path.exists(cron_path):
@@ -49,7 +47,7 @@ class InotifyWatch:
                         return
                     if not self._cron:
                         if file.is_malicious():
-                            file.quaranteen_file()
+                            file.quarantine_file()
                             self._index[0].remove_file(file.path)
                         else:
                             self._index[0].update_hash(file)

@@ -25,6 +25,12 @@ class JsonFile:
         return json_path
 
     @property
+    def interpreter_path(self):
+        with open(self.json_path, 'r') as settings_file:
+            json_data = load(settings_file)
+            return json_data["Interpreter path"]
+    
+    @property
     def quickscan_interval(self):
         with open(self.json_path, "r") as settings_file:
             json_data = load(settings_file)

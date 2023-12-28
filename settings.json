@@ -1,7 +1,9 @@
 {
+  "Interpreter path": "/home/gosia/venv/bin/python",
   "Quickscan time interval [minutes]": 1,
   "Reboot auto-start": true,
   "Folders to watch": [
-    "/home/gosia"
+    "/home/gosia/Antivirus",
+    "/home/gosia/venv/test"
   ]
 }

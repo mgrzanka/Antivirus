@@ -4,11 +4,12 @@ import hashlib
 import chardet
 import sqlite3
 
-from Messages import SuccessMessage, FailureMessage
+from messages_code.Messages import SuccessMessage, FailureMessage
 
 class File:
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, main_folder) -> None:
         self._path = path
+        self._main_folder = main_folder
     
     @property
     def path(self):
@@ -61,7 +62,7 @@ class File:
         return False
 
     def is_malicious(self):
-        db_path = "/home/gosia/Antivirus/HashDB"
+        db_path = os.path.join(self._main_folder, ".important_files/HashDB")
         database = sqlite3.connect(db_path)
         database_curor = database.cursor()
         result = database_curor.execute("SELECT * FROM HashDB WHERE hash=?", (self.hash,))
@@ -71,9 +72,9 @@ class File:
         else:
             return False
 
-    def quaranteen_file(self):
+    def quarantine_file(self):
         try:
-            destination_path = "/home/gosia/Antivirus/.quaranteen"
+            destination_path = os.path.join(self._main_folder, ".quaranteen")
             file_path = self.path
             shutil.move(file_path, destination_path)
             new_file_path = os.path.join(destination_path, os.path.split(file_path)[1])
