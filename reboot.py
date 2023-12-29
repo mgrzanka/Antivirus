@@ -4,7 +4,12 @@ from configuration_code.JsonFile import JsonFile
 
 import os
 
-if __name__ == "__main__":
+
+def main():
+    '''
+    Program that will run on the reboot, displays reboot message, in which there is a button
+    to launch antivirus main program
+    '''
     username = get_user_name()
     user_path = os.path.join("/home", username)
     main_folder = os.path.join(user_path, "Antivirus")
@@ -14,3 +19,7 @@ if __name__ == "__main__":
 
     reboot_message = RebootMessage(user_path, json_file)
     reboot_message.display_message()
+
+
+if __name__ == "__main__":
+    main()
