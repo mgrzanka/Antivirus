@@ -1,17 +1,14 @@
 # Simple antivirus that tracks and warns about suspicious files
-This project provides its user a very basic protection from malicious files.\n
+This project provides its user a very basic protection from malicious files.  
 author: Małgorzata Grzanka
 
 
 # Requirements
-This program needs to be ran with sudo. If it's not, the proper message will be displayed.
-
-Packages
------------------
+This program needs to be ran with sudo. If it's not, the proper message will be displayed.  
+Packages:  
 This program requires following external libraries: pyinotify, crontab, chardet
 
-Configuration file
------------------
+# Configuration file
 You need to include json file with required settings. You can either create your own and declare its location while running the code with the -c or --config argument. If no -c argument is given, program uses the default path (settings.json file). In settings should look like this:
 - "Interpreter path": str,
 - "Quickscan time interval [minutes]": int,
@@ -21,11 +18,11 @@ You need to include json file with required settings. You can either create your
 
 # How does it work
 Here is how a typical run of the antivirus looks like:
-    - When launched, antivirus performs a simple scan of included in settings.json directories
-    - If it comes accross a malicious file, it moves it to .quarantine folder and displays message that malicious file was detected (you can either delete it, explore its location or ignore this message)
-    - While scanning, it creates a index (.index.csv) for each directory that is being scanned of files that are binary, executable and not hidden. The index contains information about files' paths and hashes.
-    - After finishing the scan, antivirus watches given in settings.json directories for any modification or creation - if any of it takes place, program checks the file for malware and updates the index (if it's not malicious) or does what is in point 2 (if it's malicious)
-    - Once in a period of time given in settings.json, antivirus performs a quickscan for every directory in settings.json - it goes through every file in its index and checks if it's malware. If it is - look point 2, if it's not - it updates its hash in case it's out of date.
+- When launched, antivirus performs a simple scan of included in settings.json directories
+- If it comes accross a malicious file, it moves it to .quarantine folder and displays message that malicious file was detected (you can either delete it, explore its location or ignore this message)
+- While scanning, it creates a index (.index.csv) for each directory that is being scanned of files that are binary, executable and not hidden. The index contains information about files' paths and hashes.
+- After finishing the scan, antivirus watches given in settings.json directories for any modification or creation - if any of it takes place, program checks the file for malware and updates the index (if it's not malicious) or does what is in point 2 (if it's malicious)
+- Once in a period of time given in settings.json, antivirus performs a quickscan for every directory in settings.json - it goes through every file in its index and checks if it's malware. If it is - look point 2, if it's not - it updates its hash in case it's out of date.
 
 
 # Malware detection
