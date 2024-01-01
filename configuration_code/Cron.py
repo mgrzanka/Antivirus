@@ -7,7 +7,7 @@ from .JsonFile import JsonFile
 class Cron:
     '''
     A class used to adjust required cronjobs
-    
+
     Attributes
     -----------
     None
@@ -18,13 +18,15 @@ class Cron:
         Configure required cronjob
     find_CronJob(scan_cron, command): returns job or None
         Checks if program-running user has required cronjob
-    
+
     External libraries: crontab
     '''
     def scan_cron_configuration(json_file: JsonFile, username):
         ''' Configure required cronjob
-        If program-running user doesn't have cronjob that creates DoMessage file, create it
-        If the program-running user has the cronjob, but with wrong time configuration, update it
+        If program-running user doesn't have cronjob that creates DoMessage file,
+            create it
+        If the program-running user has the cronjob, but with wrong time configuration,
+            update it
         If everything is set, do nothing
 
         Returns nothing
@@ -59,7 +61,7 @@ class Cron:
         If he doesn't, return None
 
         Returns cronjob or None
-        
+
         Parameters
         -------------
         scan_cron: CronTab

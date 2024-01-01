@@ -5,6 +5,7 @@ from abc import abstractmethod, ABC
 
 from configuration_code.JsonFile import JsonFile
 
+
 class Message(ABC):
     '''
     An abstact class representing single Message to display for the user
@@ -25,7 +26,7 @@ class Message(ABC):
     create_buttons(): abstractmethod, returns list[tkinter.Button]
         creates buttons for message
     display_message()
-        puts every widget on the main window 
+        puts every widget on the main window
     '''
     def __init__(self) -> None:
         '''
@@ -39,12 +40,12 @@ class Message(ABC):
         self._window = tkinter.Tk()
         self._window.geometry("600x275")
         self._window.title("Antivirus Message")
-        
+
         self._frame = tkinter.Frame(self._window)
-        
+
         font = ("Arial", 14)
         self._cancel_button = tkinter.Button(self._frame, text="Cancel", font=font, command=self._window.destroy)
-    
+
     @abstractmethod
     def create_labels(self):
         '''creates labels for message
@@ -61,8 +62,9 @@ class Message(ABC):
 
     def display_message(self):
         '''puts every widget on the main window
-        Function gets list of labels and buttons to place from create_labels and create_buttons functions
-        and places them on the window. It performs window mainloop.
+        Function gets list of labels and buttons to place from create_labels and
+        create_buttons functions and places them on the window. It performs window
+        mainloop.
 
         Atributes
         -----------
@@ -77,7 +79,7 @@ class Message(ABC):
             for indx, button in enumerate(buttons):
                 button.grid(row=0, column=indx, sticky=tkinter.W+tkinter.E)
                 num_buttons += 1
-        
+
         self._cancel_button.grid(row=0, column=num_buttons, sticky=tkinter.W+tkinter.E)
         self._frame.pack(pady=10, fill='x')
         self._window.mainloop()
@@ -105,7 +107,7 @@ class PermissionErrorMessage(Message):
     def create_labels(self):
         '''inherited, creates one label with required caption
         Returns list of one label
-        
+
         Parameters
         ------------
         None
@@ -137,7 +139,7 @@ class RebootMessage(Message):
         handler to settings jason file to get interpreter path
     user_path: str
         path to ~ of user running program
-    
+
     Methods
     -----------
     launch_antivirus(windw: tkinter.Tk): returns nothing
@@ -179,7 +181,7 @@ class RebootMessage(Message):
     def create_labels(self):
         '''inherited, creates one label with required caption
         Returns list of one label
-        
+
         Parameters
         ------------
         None
@@ -190,7 +192,7 @@ class RebootMessage(Message):
         Do you want to launch scan and real-time protection now?'''
         label = tkinter.Label(self._window, text=text, font=font)
         return [label]
-    
+
     def create_buttons(self):
         '''inherited, creates launch button and space for cancel na launch buttons
         Returns list of one button
@@ -202,7 +204,9 @@ class RebootMessage(Message):
         self._frame.columnconfigure([0], weight=1)
         self._frame.columnconfigure([1], weight=1)
         font = ("Arial", 14)
-        command = lambda: self.launch_antivirus(self._window)
+
+        def command():
+            self.launch_antivirus(self._window)
         launch_button = tkinter.Button(self._frame, text="LAUNCH!", font=font, command=command)
         return [launch_button]
 
@@ -216,7 +220,9 @@ class SuccessMessage(Message):
     ------------
     new_path: str
         new path to the file after quarantine
-    
+    old_path: str
+        full path of malicious path
+
     Methods
     ---------
     delete(): returns nothing
@@ -226,19 +232,24 @@ class SuccessMessage(Message):
     create_labels(): returns list[tkinter.Label]
         inherited, creates two labels with required caption
     create_buttons(): returns list[tkinter.Label]
-        inherited, creates delete and explore buttons and space for cancel, delete and explore buttons
+        inherited, creates delete and explore buttons and space for cancel, delete
+        and explore buttons
     '''
-    def __init__(self, new_path) -> None:
+    def __init__(self, new_path, old_path) -> None:
         '''
         new_path: str
             new path to the file after quarantine
+        old_path: str
+            full path of malicious path
         '''
         super().__init__()
         self._new_path = new_path
-    
+        self._old_path = old_path
+
     def delete(self):
         '''tries deleting malicious file and displays proper message (removal successful or not)
-        Function creates seperate tkinter window for displaying massage whether the removal was successful or not
+        Function creates seperate tkinter window for displaying massage whether the removal
+        was successful or not
         If it was successful, both new and main window are closed after clicking "OK"
         If it's not, main window stays open in case user want to explore the malicious file
 
@@ -254,7 +265,10 @@ class SuccessMessage(Message):
         try:
             os.remove(self._new_path)
             text = "Malicious file was deleted"
-            command = lambda: [self._window.destroy(), window.destroy()]
+
+            def command():
+                self._window.destroy()
+                window.destroy()
         except Exception:
             text = "Error occured while deleting the malicious file"
             command = window.destroy
@@ -263,7 +277,7 @@ class SuccessMessage(Message):
         label.pack(pady=20)
         button.pack(pady=10)
         window.mainloop()
-    
+
     def explore_file(self):
         '''opens terminal at new_path path
         Function opens terminal at new path and ls the name of the malicious file
@@ -277,25 +291,27 @@ class SuccessMessage(Message):
         path = os.path.split(self._new_path)
         file = path[1]
         dir = path[0]
-        subprocess.Popen(["x-terminal-emulator", "--", "bash", "-c", f"cd {dir} && ls | grep {file}; exec bash"])
+        subprocess.Popen(["x-terminal-emulator", "-e", f"cd {dir} && ls | grep {file}; exec bash"])
 
     def create_labels(self):
         '''inherited, creates two labels with required caption
         Returns list of two labels
-        
+
         Parameters
         ------------
         None
         '''
         text1 = "WARNING"
         text2 = f'''Virus found at {self._old_path}\n
-    Permissions of the file were deleted and it was successfuly moved to\n{self._new_path}\n\nWhat do you want to do?'''
+    Permissions of the file were deleted and it was successfuly moved to\n{self._new_path}\n
+    What do you want to do?'''
         label1 = tkinter.Label(self._window, text=text1, font=('Arial', 16))
         label2 = tkinter.Label(self._window, text=text2, font=('Arial', 14))
         return [label1, label2]
 
     def create_buttons(self):
-        '''inherited, creates delete and explore buttons and space for cancel, delete and explore buttons
+        '''inherited, creates delete and explore buttons and space for cancel, delete
+        and explore buttons
         Returns list of two buttons
 
         Parameters
@@ -314,8 +330,8 @@ class SuccessMessage(Message):
 
 class FailureMessage(Message):
     '''
-    A class representing a message that will apear after experiencing error in conducting a quarantine on
-    infeted file and taking out its permissions
+    A class representing a message that will apear after experiencing error in conducting
+    a quarantine on infeted file and taking out its permissions
 
     Attributes
     -------------
@@ -323,7 +339,7 @@ class FailureMessage(Message):
         full path of malicious path
     new_path: str
         full path of malicious file in quarantine where is was supposed to be placed
-    
+
     Methods
     ------------
     explore_file(): return nothing
@@ -331,7 +347,8 @@ class FailureMessage(Message):
     create_labels(): returns list[tkinter.Label]
         inherited, creates two labels with required caption
     create_buttons(): returns list[tkinter.Label]
-        inherited, creates delete and explore buttons and space for cancel, delete and explore buttons
+        inherited, creates delete and explore buttons and space for cancel, delete and explore
+        buttons
     '''
     def __init__(self, new_path, old_path) -> None:
         '''
@@ -344,7 +361,7 @@ class FailureMessage(Message):
         self._window.geometry("600x200")
         self._old_path = old_path
         self._new_path = new_path
-    
+
     def explore_file(self):
         '''opens terminal at either new_path or old_path path (depends where the file is)
         Function opens terminal at new or old path and ls the name of the malicious file
@@ -359,12 +376,12 @@ class FailureMessage(Message):
             path = os.path.split(self._old_path)
         file = path[1]
         dir = path[0]
-        subprocess.Popen(["x-terminal-emulator", "--", "bash", "-c", f"cd {dir} && ls | grep {file}; exec bash"])
+        subprocess.Popen(["x-terminal-emulator", "-e", f"cd {dir} && ls | grep {file}; exec bash"])
 
     def create_labels(self):
         '''inherited, creates two labels with required caption
         Returns list of two labels
-        
+
         Parameters
         ------------
         None

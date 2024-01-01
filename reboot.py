@@ -7,8 +7,8 @@ import os
 
 def main():
     '''
-    Program that will run on the reboot, displays reboot message, in which there is a button
-    to launch antivirus main program
+    Program that will run on the reboot, displays reboot message, in which there is
+    a button to launch antivirus main program
     '''
     username = get_user_name()
     user_path = os.path.join("/home", username)

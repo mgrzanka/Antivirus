@@ -6,6 +6,7 @@ import sqlite3
 
 from messages_code.Messages import SuccessMessage, FailureMessage
 
+
 class File:
     '''
     A class used to represent single file
@@ -16,14 +17,14 @@ class File:
         total path to the file
     main_folder: str
         total path to main folder of the program
-    
+
     Properties
     ---------------
     path: str
         total path to the file
     hash: str
         MD5 hash of the file
-        
+
     Methods
     --------------
     is_binary(): returns bool
@@ -36,7 +37,7 @@ class File:
         checks if virus hash matches hash from database
     quarantine_file(): returns nothing
         moves malicious file to .quarantine folder and take away it's permissions
-    
+
     External libraries: chardet
     '''
     def __init__(self, path: str, main_folder) -> None:
@@ -48,7 +49,7 @@ class File:
         '''
         self._path = path
         self._main_folder = main_folder
-    
+
     @property
     def path(self):
         '''total path to the file
@@ -69,12 +70,12 @@ class File:
             return hashMD5.hexdigest()
         except Exception:
             pass
-       
+
     def is_binary(self):
-        ''' chekcs if the file is binary
+        ''' checks if the file is binary
         If file content has 0x00, it's text file
         If file content has '#!', it's binary file
-        
+
         In other cases, program uses chardet.UniversalDetector class to detect
         text coding of the file. If it can't recognise any known coding,
         program considers this file binary
@@ -90,8 +91,10 @@ class File:
             with open(real_path, 'rb') as file:
                 if b'\x00' in file.read(1024):
                     return False
+                file.seek(0)
                 if b'#!' in file.read(1024):
                     return True
+                file.seek(0)
                 detector = chardet.UniversalDetector()
                 for line in file.readlines():
                     detector.feed(line)
@@ -105,7 +108,7 @@ class File:
 
     def is_executable(self):
         '''checks if the file has execute permission
-        
+
         Returns True if the file has x in properties,
                 False if it doesn't
 
@@ -115,7 +118,7 @@ class File:
 
         '''
         return os.access(self.path, os.X_OK)
-    
+
     def is_hidden(self):
         '''checks if file is a hidden file
         Function split whole path to the list and then checks if any of the
@@ -150,11 +153,10 @@ class File:
 
         Returns True if there is a matching hash,
                 False is it's not
-        
+
         Parameters
         -------------
         None
-        
         '''
         db_path = os.path.join(self._main_folder, ".important_files/HashDB")
         database = sqlite3.connect(db_path)
@@ -168,9 +170,9 @@ class File:
 
     def quarantine_file(self):
         '''moves malicious file to .quarantine folder and take away it's permissions
-        Function tries to move malicious file to folder .quarantine and it sets it's permissions to 0o000
-        (None permissions at all)
-        
+        Function tries to move malicious file to folder .quarantine and it sets
+        it's permissions to 0o000 (None permissions at all)
+
         If it succeed to do so, it displays message informing user
         about the virus and it's new location and lack of permissions
         If it fails, it displays message informing user about failure and virus' location
@@ -180,16 +182,16 @@ class File:
         Parameters
         -----------
         None
-        
         '''
+        new_file_path = None
         try:
             destination_path = os.path.join(self._main_folder, ".quarantine")
             file_path = self.path
             shutil.move(file_path, destination_path)
             new_file_path = os.path.join(destination_path, os.path.split(file_path)[1])
             os.chmod(new_file_path, 0o000)
-            success_message = SuccessMessage(new_file_path)
-            success_message.display_message()
+            message = SuccessMessage(new_file_path, self.path)
+            message.display_message()
         except Exception:
-            failure_message = FailureMessage(file_path, new_file_path)
+            failure_message = FailureMessage(new_file_path, file_path)
             failure_message.display_message()

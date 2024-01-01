@@ -1,10 +1,11 @@
 import os
 
+
 def get_user_name():
     ''' Returns username of the user that has this antivirus installed
-    Function creates a list of all home folders. If the folder has Ativirus folder 
-    with antivirus.py app, it's considered program running user
-    
+    Function creates a list of all home directories. If the directory has Ativirus folder
+    with antivirus.py app, it's considered program user's home directory
+
     Parameters
     -------------
     None

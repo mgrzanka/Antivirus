@@ -9,7 +9,7 @@ from file_management_code.File import File
 
 class InotifyWatch:
     '''
-    A class used to represent an inotify watch for a given folder
+    A class used to represent an inotify watch for a given directory
 
     Attributes
     -------------
@@ -24,7 +24,7 @@ class InotifyWatch:
         object representing index of files in watched folder
         it's a list, so cron watch can do a quickscan of all of the indexes
         if watch is not for cron, the list has just one element - watched folder index
-    
+
     Methods
     --------------
     on_file_change(event: pyinotify.Event): returns nothing
@@ -33,7 +33,7 @@ class InotifyWatch:
         create watch for class instance's folder
     watch_thread(): returns Thread class instance
         starts thread of watch_files() function
-    
+
     External libraries: pyinotify
     '''
     def __init__(self, folder_path: str, main_folder, cron: bool, index: list[FilesIndex]) -> None:
@@ -59,8 +59,10 @@ class InotifyWatch:
         '''determines what to do when given in mask event occured
         If file is not cron file and it doesn't exist, it means the event was it's removal
         If the file was deleted, remove it from index
-        If it was a file created by cronjob, do quickscan for all existing indexes and then remove cronjob file
-        If it wasn't cronjob file: if it's binary, executable and not hidden, check if it's malicious
+        If it was a file created by cronjob, do quickscan for all existing indexes
+        and then remove cronjob file
+        If it wasn't cronjob file: if it's binary, executable and not hidden,
+        check if it's malicious
         If it's malicious, call file.quarantine() and remove it from index
         If it's not malicious, update it's hash in index (it changed so hash changed)
 
@@ -81,7 +83,7 @@ class InotifyWatch:
             except FileNotFoundError:
                 pass
 
-        #File created or modified
+        # File created or modified
         if not os.path.isdir(event_path):
             file = File(event_path, self._main_folder)
             # Crone
@@ -90,7 +92,7 @@ class InotifyWatch:
                     print(f"{file.path} was created")
                     time.sleep(1)
                     for index in self._index:
-                        index.quickscan()                   
+                        index.quickscan()
                     os.remove(file.path)
                     return
                 elif file.path != cron_path and self._cron:
@@ -114,7 +116,8 @@ class InotifyWatch:
         '''create watch for class instance's folder
         Function creates pyinotify.WatchManager with different masks depending if it will watch
         cronjob-created file or normal directories. For normal directories, the watch is recursive
-        It declares function on_file_change() to be event handler and creates inotifywatch, infinite loop
+        It declares function on_file_change() to be event handler and creates inotifywatch,
+        infinite loop
 
         Returns nothing
 
@@ -138,7 +141,8 @@ class InotifyWatch:
 
     def watch_thread(self):
         '''starts thread of watch_files() function
-        Function create threading.Thread instance representing watch for single directory and starts it
+        Function create threading.Thread instance representing watch for single directory
+        and starts it
 
         Returns thread instance so it can be stored in list in the main program for join()
 
