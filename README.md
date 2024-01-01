@@ -1,5 +1,5 @@
 # Simple antivirus that tracks and warns about suspicious files
-This project provides its user a very basic protection from malicious files.
+This project provides its user a very basic protection from malicious files.\n
 author: Małgorzata Grzanka
 
 
