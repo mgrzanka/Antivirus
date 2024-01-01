@@ -5,7 +5,8 @@ author: Małgorzata Grzanka
 
 
 # Requirements
-This program needs to be ran with sudo. If it's not, the proper message will be displayed.  
+This program needs to be placed in a directory named Antivirus in ~ directory. It has to be ran with sudo. If it's not, the proper message will be displayed.
+
 Packages:  
 This program requires following external libraries: pyinotify, crontab, chardet
 
