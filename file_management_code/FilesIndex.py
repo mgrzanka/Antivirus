@@ -42,7 +42,7 @@ class FilesIndex:
     quickscan(): returns nothing
         updates potential non-validity of files index
     '''
-    def __init__(self, path, main_folder) -> None:
+    def __init__(self, path, main_folder: str) -> None:
         '''
         path: str
             total path to the file index
@@ -56,13 +56,13 @@ class FilesIndex:
         self._error_occured = False
 
     @property
-    def should_exit(self):
+    def should_exit(self) -> bool:
         '''error_occured flag
         bool
         '''
         return self._error_occured
 
-    def handle_permission_error(self):
+    def handle_permission_error(self) -> None:
         '''displays permission error message if error occured
         Function sets error_occured flag to True and displays message that there is
         no sudo permisions
@@ -77,7 +77,7 @@ class FilesIndex:
         message = PermissionErrorMessage()
         message.display_message()
 
-    def create(self):
+    def create(self) -> None:
         '''creates new index file with headers "path" and "hash"
         Function tries do create index file with headers, if there is no permission to do so,
         calls function hendle_permision_error()
@@ -100,7 +100,7 @@ class FilesIndex:
         except PermissionError:
             self.handle_permission_error()
 
-    def remove_file(self, file_path):
+    def remove_file(self, file_path: str) -> None:
         '''removes file from index
         Function creates a list of rows in index. If path of any of the rows matches
         given file path, it removes this file from the list and rewrites index
@@ -128,7 +128,7 @@ class FilesIndex:
             writer.writeheader()
             writer.writerows(rows)
 
-    def update_hash(self, file: File):
+    def update_hash(self, file: File) -> None:
         '''adds file to index if it's not there, updates it's hash otherwise
         Function creates a list of rows in index and iterates through it
         If it finds file in the list that has same path as the given file:
@@ -166,7 +166,7 @@ class FilesIndex:
             else:
                 writer.writerow({"path": file.path, "hash": file.hash})
 
-    def scan(self, folder):
+    def scan(self, folder: str) -> None:
         '''adds all binary, executable, not-hidden and not-malicious files to index
         Function go recursively through all of the directories and files in given folder.
         If the file is binary, executable and not hidden, checks if it's malicious.
@@ -197,7 +197,7 @@ class FilesIndex:
             else:
                 self.scan(full_path)
 
-    def scan_process(self, folder):
+    def scan_process(self, folder: str) -> Process:
         '''starts process of scan() function for given folder
         Function creates multiprocessing.Proces object representing scan for one of the main
         folders given in json settings file and starts it
@@ -213,7 +213,7 @@ class FilesIndex:
         proces.start()
         return proces
 
-    def quickscan(self):
+    def quickscan(self) -> None:
         '''updates potential non-validity of files index
         Function goes through every file in index and checkes if it's malicious.
         If it is, it calls file.quarantine() function and removes it from the index

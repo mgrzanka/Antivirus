@@ -1,3 +1,5 @@
+from typing import Optional
+
 import tkinter
 import os
 import subprocess
@@ -47,20 +49,20 @@ class Message(ABC):
         self._cancel_button = tkinter.Button(self._frame, text="Cancel", font=font, command=self._window.destroy)
 
     @abstractmethod
-    def create_labels(self):
+    def create_labels(self) -> Optional[list[tkinter.Label]]:
         '''creates labels for message
         abstactmethod
         '''
         pass
 
     @abstractmethod
-    def create_buttons(self):
+    def create_buttons(self) -> Optional[list[tkinter.Button]]:
         '''creates buttons for message
         abstactmethod
         '''
         pass
 
-    def display_message(self):
+    def display_message(self) -> None:
         '''puts every widget on the main window
         Function gets list of labels and buttons to place from create_labels and
         create_buttons functions and places them on the window. It performs window
@@ -104,7 +106,7 @@ class PermissionErrorMessage(Message):
         super().__init__()
         self._window.geometry("400x100")
 
-    def create_labels(self):
+    def create_labels(self) -> Optional[list[tkinter.Label]]:
         '''inherited, creates one label with required caption
         Returns list of one label
 
@@ -117,7 +119,7 @@ class PermissionErrorMessage(Message):
         label = tkinter.Label(self._window, text=text, font=font)
         return [label]
 
-    def create_buttons(self):
+    def create_buttons(self) -> Optional[list[tkinter.Button]]:
         '''inherited, creates space for cancel button
         Returns None
 
@@ -161,7 +163,7 @@ class RebootMessage(Message):
         self._user_path = user_path
         self._window.geometry("700x200")
 
-    def launch_antivirus(self, window):
+    def launch_antivirus(self, window: tkinter.Tk) -> None:
         '''creates subprocess that run main antivirus program
         Function that is run when launch button is clicked
 
@@ -178,7 +180,7 @@ class RebootMessage(Message):
         window.destroy()
         subprocess.run(["pkexec", interpreter_path, program_path])
 
-    def create_labels(self):
+    def create_labels(self) -> Optional[list[tkinter.Label]]:
         '''inherited, creates one label with required caption
         Returns list of one label
 
@@ -193,7 +195,7 @@ class RebootMessage(Message):
         label = tkinter.Label(self._window, text=text, font=font)
         return [label]
 
-    def create_buttons(self):
+    def create_buttons(self) -> Optional[list[tkinter.Button]]:
         '''inherited, creates launch button and space for cancel na launch buttons
         Returns list of one button
 
@@ -235,7 +237,7 @@ class SuccessMessage(Message):
         inherited, creates delete and explore buttons and space for cancel, delete
         and explore buttons
     '''
-    def __init__(self, new_path, old_path) -> None:
+    def __init__(self, new_path: str, old_path: str) -> None:
         '''
         new_path: str
             new path to the file after quarantine
@@ -246,7 +248,7 @@ class SuccessMessage(Message):
         self._new_path = new_path
         self._old_path = old_path
 
-    def delete(self):
+    def delete(self) -> None:
         '''tries deleting malicious file and displays proper message (removal successful or not)
         Function creates seperate tkinter window for displaying massage whether the removal
         was successful or not
@@ -278,7 +280,7 @@ class SuccessMessage(Message):
         button.pack(pady=10)
         window.mainloop()
 
-    def explore_file(self):
+    def explore_file(self) -> None:
         '''opens terminal at new_path path
         Function opens terminal at new path and ls the name of the malicious file
 
@@ -293,7 +295,7 @@ class SuccessMessage(Message):
         dir = path[0]
         subprocess.Popen(["x-terminal-emulator", "-e", f"cd {dir} && ls | grep {file}; exec bash"])
 
-    def create_labels(self):
+    def create_labels(self) -> Optional[list[tkinter.Label]]:
         '''inherited, creates two labels with required caption
         Returns list of two labels
 
@@ -309,7 +311,7 @@ class SuccessMessage(Message):
         label2 = tkinter.Label(self._window, text=text2, font=('Arial', 14))
         return [label1, label2]
 
-    def create_buttons(self):
+    def create_buttons(self) -> Optional[list[tkinter.Button]]:
         '''inherited, creates delete and explore buttons and space for cancel, delete
         and explore buttons
         Returns list of two buttons
@@ -350,7 +352,7 @@ class FailureMessage(Message):
         inherited, creates delete and explore buttons and space for cancel, delete and explore
         buttons
     '''
-    def __init__(self, new_path, old_path) -> None:
+    def __init__(self, new_path: str, old_path: str) -> None:
         '''
         old_path: str
             full path of malicious path
@@ -362,7 +364,7 @@ class FailureMessage(Message):
         self._old_path = old_path
         self._new_path = new_path
 
-    def explore_file(self):
+    def explore_file(self) -> None:
         '''opens terminal at either new_path or old_path path (depends where the file is)
         Function opens terminal at new or old path and ls the name of the malicious file
 
@@ -370,7 +372,7 @@ class FailureMessage(Message):
         ------------
         None
         '''
-        if os.path.exists(self._new_path):
+        if self._new_path:
             path = os.path.split(self._new_path)
         else:
             path = os.path.split(self._old_path)
@@ -378,7 +380,7 @@ class FailureMessage(Message):
         dir = path[0]
         subprocess.Popen(["x-terminal-emulator", "-e", f"cd {dir} && ls | grep {file}; exec bash"])
 
-    def create_labels(self):
+    def create_labels(self) -> Optional[list[tkinter.Label]]:
         '''inherited, creates two labels with required caption
         Returns list of two labels
 
@@ -393,7 +395,7 @@ class FailureMessage(Message):
         label2 = tkinter.Label(self._window, text=text2, font=('Arial', 14))
         return [label1, label2]
 
-    def create_buttons(self):
+    def create_buttons(self) -> Optional[list[tkinter.Button]]:
         '''inherited, creates explore button and space for cancel and explore buttons
         Returns list of one button
 

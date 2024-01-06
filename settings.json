@@ -3,7 +3,6 @@
   "Quickscan time interval [minutes]": 1,
   "Reboot auto-start": true,
   "Folders to watch": [
-    "/home/gosia/Antivirus",
-    "/home/gosia/venv/test"
+    "/home"
   ]
 }

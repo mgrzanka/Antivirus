@@ -51,14 +51,14 @@ class File:
         self._main_folder = main_folder
 
     @property
-    def path(self):
+    def path(self) -> str:
         '''total path to the file
         str
         '''
         return self._path
 
     @property
-    def hash(self):
+    def hash(self) -> str:
         '''MD5 hash of the file
         str
         '''
@@ -71,7 +71,7 @@ class File:
         except Exception:
             pass
 
-    def is_binary(self):
+    def is_binary(self) -> bool:
         ''' checks if the file is binary
         If file content has 0x00, it's text file
         If file content has '#!', it's binary file
@@ -102,11 +102,14 @@ class File:
                         break
                 detector.close()
                 result = detector.result
-                return result["confidence"] < 0.8
+                if result['encoding'] == 'ascii' and result["confidence"] < 0.9:
+                    return True
+                else:
+                    return False
         except PermissionError:
             pass
 
-    def is_executable(self):
+    def is_executable(self) -> bool:
         '''checks if the file has execute permission
 
         Returns True if the file has x in properties,
@@ -119,7 +122,7 @@ class File:
         '''
         return os.access(self.path, os.X_OK)
 
-    def is_hidden(self):
+    def is_hidden(self) -> bool:
         '''checks if file is a hidden file
         Function split whole path to the list and then checks if any of the
         list elements has '.' at the begining
@@ -146,7 +149,7 @@ class File:
                 return True
         return False
 
-    def is_malicious(self):
+    def is_malicious(self) -> bool:
         '''checks if virus hash matches hash from database
         Function uses external database through sqlite3 module
         It takes hash of the file and looks if there is a matching hash in this database
@@ -168,7 +171,7 @@ class File:
         else:
             return False
 
-    def quarantine_file(self):
+    def quarantine_file(self) -> None:
         '''moves malicious file to .quarantine folder and take away it's permissions
         Function tries to move malicious file to folder .quarantine and it sets
         it's permissions to 0o000 (None permissions at all)
@@ -188,7 +191,11 @@ class File:
             destination_path = os.path.join(self._main_folder, ".quarantine")
             file_path = self.path
             shutil.move(file_path, destination_path)
-            new_file_path = os.path.join(destination_path, os.path.split(file_path)[1])
+            if '/' in file_path:
+                file_name = os.path.split(file_path)[1]
+            else:
+                file_name = file_path
+            new_file_path = os.path.join(destination_path, file_name)
             os.chmod(new_file_path, 0o000)
             message = SuccessMessage(new_file_path, self.path)
             message.display_message()

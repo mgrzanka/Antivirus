@@ -1,5 +1,7 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from json import load
+import sys
+import os
 
 
 class JsonFile:
@@ -38,7 +40,7 @@ class JsonFile:
         self._default_path = default_path
         self._json_path = None
 
-    def create_parser(self, args=None):
+    def create_parser(self, args=None) -> Namespace:
         ''' creates parser to antivirus.py with possible -c flag taking a path to settings file
 
         Returns argparse.Namespace object that contains the parsed argument values
@@ -60,17 +62,20 @@ class JsonFile:
         return parser.parse_args(args)
 
     @property
-    def json_path(self):
+    def json_path(self) -> str:
         ''' returns path to settings file, loaded from input data via parser
         str
         '''
         if not self._json_path:
-            args = self.create_parser(['-c', self._default_path])
+            args = self.create_parser()
             self._json_path = args.config
+            if not os.path.exists(self._json_path):
+                print("Wrong json file path")
+                sys.exit()
         return self._json_path
 
     @property
-    def interpreter_path(self):
+    def interpreter_path(self) -> str:
         '''returns path to interpreter that is used to launch program, loaded from settings json
         file
         int
@@ -80,7 +85,7 @@ class JsonFile:
             return json_data["Interpreter path"]
 
     @property
-    def quickscan_interval(self):
+    def quickscan_interval(self) -> int:
         '''returns time in minutes how often do quickscan, loaded from settings json file
         str
         '''
@@ -89,7 +94,7 @@ class JsonFile:
             return json_data["Quickscan time interval [minutes]"]
 
     @property
-    def reboot(self):
+    def reboot(self) -> bool:
         '''returns if program should be launched automaticaly after system reboot,
         loaded from settings json file
         bool
@@ -99,7 +104,7 @@ class JsonFile:
             return json_data["Reboot auto-start"]
 
     @property
-    def folders_to_watch(self):
+    def folders_to_watch(self) -> list[str]:
         '''returns list of folders program should monitor loaded from settings json file
         list[str]
         '''

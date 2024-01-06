@@ -86,6 +86,8 @@ def malicious_file():
 
 
 def test_successful_quarantine(malicious_file):
+    # If you click delete, error will apear, because it can't remove deleted file
+    # (proves that the file was deleted :) )
     path, new_path, quarantine_path = malicious_file
 
     file = File(path, main_folder)

@@ -1,6 +1,7 @@
 import os
 
 from .JsonFile import JsonFile
+from .get_user_name import get_user_name
 
 
 class Startup:
@@ -9,60 +10,85 @@ class Startup:
 
     Attributes
     -------------
-    script_name: str
-        name of the desktop file configuring auto-startup
-    desktop_path: str
-        path to the desktop file configuring auto-startup
-    interpreter_path: str
-        path to interpreter that is used to launch program in auto-startup
-    script_path: str
-        path to the program that will be launched in auto-startup
+    json_file: JsonFile
+        handler to JsonFile class instance
 
     Properties
     --------------
+    interpreter_path: str
+        path to interpreter path
+    python_script_path: str
+        path to python script that will be ran at auto-startup
+    desktop_file_path: str
+        path to desktop file resposible for auto-startup
+    desktop_file_content: str
+        content of desktop file
     is_configured: bool
         return True if desktop_path exist, return False otherwise
 
     Methods
     -------------
-    add_to_startup(): returns nothing
-        adds desktop file to ~/.config/autostart
-    delete_startup(): returns nothing
-        removes desktop file from ~/.config/autostart
+    configure_startup(): returns nothing
+        either removes or creates desktop file based on information from json
     '''
-    def __init__(self, json_file: JsonFile, user_path) -> None:
+    def __init__(self, json_file: JsonFile) -> None:
         '''
-        Parameters
-        ------------
-        script_name: str
-            name of the desktop file configuring auto-startup
-        desktop_path: str
-            path to the desktop file configuring auto-startup
-        interpreter_path: str
-            path to interpreter that is used to launch program in auto-startup
-        script_path: str
-            path to the program that will be launched in auto-startup
+        json_file: JsonFile
+            handler to JsonFile class instance
         '''
-        main_folder = os.path.join(user_path, 'Antivirus')
-
-        self._script_name = 'reboot'
-        self._desktop_path = f"{user_path}/.config/autostart/{self._script_name}.desktop"
-        self._interpreter_path = json_file.interpreter_path
-        self._script_path = os.path.join(main_folder, 'reboot.py')
+        self._json_file = json_file
 
     @property
-    def is_configured(self):
+    def interpreter_path(self) -> str:
+        '''path to interpreter path
+        str
+        '''
+        return self._json_file.interpreter_path
+
+    @property
+    def should_exists(self) -> bool:
+        '''returns wheter desktop file should be created
+        bool
+        '''
+        return self._json_file.reboot
+
+    @property
+    def python_script_path(self) -> str:
+        '''path to python script that will be ran at auto-startup
+        str
+        '''
+        username = get_user_name()
+        return os.path.join("/home", username, "Antivirus", "reboot.py")
+
+    @property
+    def desktop_file_path(self) -> str:
+        '''path to desktop file resposible for auto-startup
+        str
+        '''
+        username = get_user_name()
+        return os.path.join("/home", username, ".config", "autostart", "reboot.desktop")
+
+    @property
+    def desktoop_file_content(self) -> str:
+        '''content of desktop file
+        str
+        '''
+        python_script_name = os.path.split(self.python_script_path)[1]
+        return f'''[Desktop Entry]
+Name={python_script_name}
+Exec={self.interpreter_path} {self.python_script_path}
+Type=Application
+'''
+
+    @property
+    def is_configured(self) -> bool:
         '''return True if desktop_path exist, return False otherwise
         bool
         '''
-        return os.path.exists(self._desktop_path)
+        return os.path.exists(self.desktop_file_path)
 
-    def add_to_startup(self):
-        ''' adds desktop file to ~/.config/autostart if it's not there
-        Dekstop file contains:
-            - name of the aplication: reboot
-            - launch command: interpreter_path script_path
-            - application type: Aplication
+    def configure_startup(self):
+        '''either removes or creates desktop file based on information from json
 
         Returns nothing
 
@@ -70,25 +96,11 @@ class Startup:
         ------------
         None
         '''
-        if not self.is_configured:
-            with open(self._desktop_path, 'w') as file:
-                file.write(f'''[Desktop Entry]
-Name={self._script_name}
-Exec={self._interpreter_path} {self._script_path}
-Type=Application
-''')
-
-    def delete_startup(self):
-        ''' removes desktop file from ~/.config/autostart if it's there
-
-        Returns nothing
-
-        Parameters
-        -------------
-        None
-        '''
-        if self.is_configured:
-            try:
-                os.remove(self._desktop_path)
-            except FileNotFoundError:
-                pass
+        try:
+            if not self.should_exists and self.is_configured:
+                os.remove(self.desktop_file_path)
+            elif self.should_exists and not self.is_configured:
+                with open(self.desktop_file_path, 'w') as file:
+                    file.write(self.desktoop_file_content)
+        except Exception:
+            pass

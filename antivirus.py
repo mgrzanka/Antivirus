@@ -38,12 +38,10 @@ def main():
     default_path = os.path.join(main_folder, 'settings.json')
 
     json_file = JsonFile(default_path)
-    Cron.scan_cron_configuration(json_file, username)
-    startup = Startup(json_file, user_path)
-    if json_file.reboot:
-        startup.add_to_startup()
-    else:
-        startup.delete_startup()
+    cron = Cron(json_file)
+    cron.scan_cron_configuration()
+    startup = Startup(json_file)
+    startup.configure_startup()
 
     folders_to_watch = json_file.folders_to_watch
     watches_list = []
