@@ -18,7 +18,7 @@ You need to include json file with required settings. You can either create your
 - "Folders to watch": list[str]
 
 # How to run
-Run the program by typing: sudo <interpreter path with required packages> ~/Antivirus/antivirus.py [-c <json file path>]
+Run the program by typing: sudo (interpreter path with required packages) ~/Antivirus/antivirus.py [-c (json file path)]
 
 # How does it work
 Here is how a typical run of the antivirus looks like:
