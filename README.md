@@ -1,6 +1,6 @@
 # Simple Antivirus
 
-This project was developed as part of my **first-year coursework** in Computer Science at Warsaw University of Technology. It provides a basic antivirus solution that tracks and warns about suspicious files. While its functionality is limited, it demonstrates key programming concepts and serves as an introduction to real-time file monitoring and malware detection.
+This project was developed as part of my **first-year coursework** at Warsaw University of Technology. It provides a basic antivirus solution that tracks and warns about suspicious files.
 
 ---
 
