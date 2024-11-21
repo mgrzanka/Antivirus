@@ -1,5 +1,8 @@
-# Simple antivirus that tracks and warns about suspicious files
-This project provides its user a very basic protection from malicious files.
+# Simple Antivirus - First-Year Project
+
+This project was developed as part of my **first-year coursework** in Computer Science at Warsaw University of Technology. It provides a basic antivirus solution that tracks and warns about suspicious files. While its functionality is limited, it demonstrates key programming concepts and serves as an introduction to real-time file monitoring and malware detection.
+
+---
 
 author: Małgorzata Grzanka
 
@@ -62,10 +65,3 @@ RebootMessage: A class representing message that will apear at auto-reboot
 SuccessMessage: A class representing message that will apear after conducting a successful quarantine on infeted file and taking out its permissions
 
 FailureMessage: A class representing a message that will apear after experiencing error in conducting a quarantine on infeted file and taking out its permissions
-
-# Reflective part
-The main goal of the project was to create optimized and working properly antivirus that provides real time protection.
-
-In the current version, it has very poor malware detection. Also, the periotic quickscan mechanism could be much more improved, which I hope to update in the future. And the optimalization is realy bad.
-
-The most challenging thing in the project was creating the whole concept of the program and to create inotify watches using pyinotify module. Testing the program (espessialy InotifyWatch class) was also pretty hard for me - in the end, I didn't do it precisely (issues with patch and Mock). Another issue I came across is not being able to test my program completely because of lack of real malware for it to detect.
