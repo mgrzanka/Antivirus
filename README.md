@@ -1,5 +1,5 @@
 # Simple antivirus that tracks and warns about suspicious files
-This project provides its user a very basic protection from malicious files.  
+This project provides its user a very basic protection from malicious files.
 
 author: Małgorzata Grzanka
 
@@ -7,7 +7,7 @@ author: Małgorzata Grzanka
 # Requirements
 This program needs to be placed in a directory named Antivirus in ~ directory. It has to be ran with sudo. If it's not, the proper message will be displayed.
 
-Packages:  
+Packages:
 This program requires following external libraries: pyinotify, crontab, chardet
 
 # Configuration file
@@ -68,4 +68,4 @@ The main goal of the project was to create optimized and working properly antivi
 
 In the current version, it has very poor malware detection. Also, the periotic quickscan mechanism could be much more improved, which I hope to update in the future. And the optimalization is realy bad.
 
-The most challenging thing in the project was creating the whole concept of the program and to create inotify watches using pyinotify module. Testing the program (espessialy InotifyWatch class) was also pretty hard for me - in the end, I didn't do it precisely (issues with patch and Mock). Another issue I came across is not being able to test my program completely because of lack of real malware for it to detect.    
+The most challenging thing in the project was creating the whole concept of the program and to create inotify watches using pyinotify module. Testing the program (espessialy InotifyWatch class) was also pretty hard for me - in the end, I didn't do it precisely (issues with patch and Mock). Another issue I came across is not being able to test my program completely because of lack of real malware for it to detect.
