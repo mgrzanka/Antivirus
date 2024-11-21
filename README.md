@@ -2,9 +2,8 @@
 
 This project was developed as part of my **first-year coursework** at Warsaw University of Technology. It provides a basic antivirus solution that tracks and warns about suspicious files.
 
----
-
 author: Małgorzata Grzanka
+---
 
 
 # Requirements
